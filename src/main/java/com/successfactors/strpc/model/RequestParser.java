@@ -26,7 +26,7 @@ public class RequestParser {
     Iterator<JsonNode> iterator = JsonUtil.readTree(dataJson).iterator();
     for (int i = 0; i < paramTypes.length; i++) {
       JsonNode paramNode = iterator.next();
-      params[i] = JsonUtil.objectMapper.treeToValue(paramNode, paramTypes[i]);
+      params[i] = JsonUtil.treeToObject(paramNode, paramTypes[i]);
     }
 
     return new ServiceClosure(id, serviceFunction, params);

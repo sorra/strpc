@@ -7,7 +7,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import com.successfactors.strpc.model.JsonUtil;
+import com.successfactors.strpc.model.PendingRequests;
+import com.successfactors.strpc.model.Response;
+import com.successfactors.strpc.model.ResponseParser;
 import org.apache.commons.lang3.StringUtils;
 
 public class ClientMain {
@@ -29,7 +33,8 @@ public class ClientMain {
           }
         }
         try {
-          JsonUtil.readTree(message);
+          Response response = ResponseParser.parse(message);
+          PendingRequests.remove(response.getId());
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -42,11 +47,14 @@ public class ClientMain {
 			}
 		});
 
-		start = System.currentTimeMillis();
     String[] params = {StringUtils.repeat('a', 100), StringUtils.repeat('b', 100)};
+    JavaType returnType = JsonUtil.getTypeFactory().constructArrayType(String.class);
+
+    start = System.currentTimeMillis();
     for (int i = 0; i < 1000_000; i++) {
 			String request = i + ";echo;java.lang.String;java.lang.String\r\n" + JsonUtil.toJson(params);
-			clientEndPoint.sendMessage(request);
+      PendingRequests.putRequestInfo(String.valueOf(i), returnType);
+      clientEndPoint.sendMessage(request);
 		}
 		lock.lock(); // Wait
   }

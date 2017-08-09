@@ -3,7 +3,9 @@ package com.successfactors.strpc.model;
 public class Response {
   String id;
   Object data;
-  Throwable throwable;
+  String errorMsg;
+
+  Response() {}
 
   public Response(String id, Object data) {
     this.id = id;
@@ -12,7 +14,7 @@ public class Response {
 
   public Response(String id, Throwable throwable) {
     this.id = id;
-    this.throwable = throwable;
+    this.errorMsg = throwable.toString();
   }
 
   public String getId() {
@@ -23,7 +25,7 @@ public class Response {
     return data;
   }
 
-  public Throwable getThrowable() {
-    return throwable;
+  public String getErrorMsg() {
+    return errorMsg;
   }
 }
