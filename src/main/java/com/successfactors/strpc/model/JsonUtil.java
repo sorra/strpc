@@ -3,6 +3,7 @@ package com.successfactors.strpc.model;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonUtil {
@@ -14,5 +15,9 @@ public class JsonUtil {
 
   public static <T> T toObject(String json, Class<T> cls) throws IOException {
     return objectMapper.readValue(json, cls);
+  }
+
+  public static JsonNode readTree(String json) throws IOException {
+    return JsonUtil.objectMapper.readTree(json);
   }
 }

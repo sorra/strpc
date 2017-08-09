@@ -11,7 +11,11 @@ public class RequestParser {
     if (idxOfDelimiter <= 0) {
       throw new RuntimeException("Request has no header");
     }
-    String name = message.substring(0, idxOfDelimiter);
+    String header = message.substring(0, idxOfDelimiter);
+    int idxOfIdEnder = message.indexOf(";");
+    String id = message.substring(0, idxOfIdEnder);
+    String name = header.substring(idxOfIdEnder + 1);
+
     String dataJson = message.substring(idxOfDelimiter + 2);
 
     ServiceLookup.ServiceFunction serviceFunction = ServiceLookup.find(name);
@@ -19,12 +23,12 @@ public class RequestParser {
 
     Object[] params = new Object[paramTypes.length];
 
-    Iterator<JsonNode> iterator = JsonUtil.objectMapper.readTree(dataJson).iterator();
+    Iterator<JsonNode> iterator = JsonUtil.readTree(dataJson).iterator();
     for (int i = 0; i < paramTypes.length; i++) {
       JsonNode paramNode = iterator.next();
       params[i] = JsonUtil.objectMapper.treeToValue(paramNode, paramTypes[i]);
     }
 
-    return new ServiceClosure(serviceFunction, params);
+    return new ServiceClosure(id, serviceFunction, params);
   }
 }
