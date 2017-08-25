@@ -1,9 +1,9 @@
 package com.successfactors.strpc.model;
 
 public class Response {
-  String id;
-  Object data;
-  String errorMsg;
+  private String id;
+  private Object data;
+  private String errorMsg;
 
   Response() {}
 

@@ -15,19 +15,19 @@ import com.successfactors.strpc.model.ResponseParser;
 import org.apache.commons.lang3.StringUtils;
 
 public class ClientMain {
-	private static int ri = 0;
-	private static long start;
-	private static Lock lock = new ReentrantLock();
+  private static int ri = 0;
+  private static long start;
+  private static Lock appLock = new ReentrantLock();
 
   public static void main(final String[] args) throws InterruptedException, URISyntaxException, JsonProcessingException {
-		final RpcClientEndpoint clientEndPoint = new RpcClientEndpoint(new URI("ws://0.0.0.0:8080/rpc"));
+    final RpcClientEndpoint clientEndPoint = new RpcClientEndpoint(new URI("ws://0.0.0.0:8080/rpc"));
 
-		clientEndPoint.addMessageHandler(new RpcClientEndpoint.MessageHandler() {
-			@Override
-			public void handleMessage(String message) {
+    clientEndPoint.addMessageHandler(new RpcClientEndpoint.MessageHandler() {
+      @Override
+      public void handleMessage(String message) {
 //				System.out.println(message);
         if (ri == 0) {
-          if (!lock.tryLock()) {
+          if (!appLock.tryLock()) {
             System.out.println("Lock failure, should shutdown");
             throw new RuntimeException("Lock failure, should shutdown");
           }
@@ -42,20 +42,21 @@ public class ClientMain {
         if (ri == 1000_000) {
           long cost = System.currentTimeMillis() - start;
           System.out.println(cost + " ms");
-          lock.unlock();
+          appLock.unlock();
         }
-			}
-		});
+      }
+    });
 
     String[] params = {StringUtils.repeat('a', 100), StringUtils.repeat('b', 100)};
     JavaType returnType = JsonUtil.getTypeFactory().constructArrayType(String.class);
 
     start = System.currentTimeMillis();
     for (int i = 0; i < 1000_000; i++) {
-			String request = i + ";echo;java.lang.String;java.lang.String\r\n" + JsonUtil.toJson(params);
-      PendingRequests.putRequestInfo(String.valueOf(i), returnType);
+      String id = String.valueOf(i);
+      String request = id + ";echo;java.lang.String;java.lang.String\r\n" + JsonUtil.toJson(params);
+      PendingRequests.putRequestInfo(id, returnType);
       clientEndPoint.sendMessage(request);
-		}
-		lock.lock(); // Wait
+    }
+    appLock.lock(); // Wait
   }
 }
