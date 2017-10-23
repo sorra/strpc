@@ -19,4 +19,8 @@ public class PendingRequests {
   public static void remove(String id) {
     idVsInfoMap.remove(id);
   }
+  
+  public static boolean isEmpty() {
+    return idVsInfoMap.isEmpty();
+  }
 }

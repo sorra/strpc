@@ -20,7 +20,7 @@ public class ClientMain {
   private static Lock appLock = new ReentrantLock();
 
   public static void main(final String[] args) throws InterruptedException, URISyntaxException, JsonProcessingException {
-    final RpcClientEndpoint clientEndPoint = new RpcClientEndpoint(new URI("ws://0.0.0.0:8080/rpc"));
+    final RpcClientEndpoint clientEndPoint = new RpcClientEndpoint(new URI("ws://0.0.0.0:18080/rpc"));
 
     clientEndPoint.addMessageHandler(new RpcClientEndpoint.MessageHandler() {
       @Override
@@ -56,6 +56,9 @@ public class ClientMain {
       String request = id + ";echo;java.lang.String;java.lang.String\r\n" + JsonUtil.toJson(params);
       PendingRequests.putRequestInfo(id, returnType);
       clientEndPoint.sendMessage(request);
+    }
+    while (!PendingRequests.isEmpty()) {
+      Thread.sleep(10);
     }
     appLock.lock(); // Wait
   }
